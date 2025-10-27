@@ -4,7 +4,7 @@ A set of compile time tools.
 Includes a key-value map, mutable compile time variable. 
 
 
-###Map example:
+### Map example:
 ```cpp
 #include "consteval_map.hpp"
 
@@ -34,7 +34,7 @@ static_assert(map::getV_v<1> == str<"abc">);
 static_assert(map::getV_v<1> == map::getV_v<2>);
 ```
 
-###Consteval mutable example:
+### Consteval mutable example:
 '''cpp
 template<auto>
 struct storage; //the incomplete type that is used as the storage medium for the mutable
