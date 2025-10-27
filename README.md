@@ -35,7 +35,7 @@ static_assert(map::getV_v<1> == map::getV_v<2>);
 ```
 
 ### Consteval mutable example:
-'''cpp
+```cpp
 template<auto>
 struct storage; //the incomplete type that is used as the storage medium for the mutable
 using mut = consteval_mutable<^^storage>; // the mutable type
@@ -66,4 +66,4 @@ consteval{
 	mut::putT<func1>();
 }
 static_assert(mut::get_t<>{}() == 1);
-'''
+```
