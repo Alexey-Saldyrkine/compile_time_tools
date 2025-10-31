@@ -1,20 +1,24 @@
 #pragma once
 #include "consteval_map.hpp"
 
-template<meta::info storageR, std::size_t C = 100>
-requires (C >1)
+template<meta::info storageR, std::size_t search_hint = 100, meta::info key = ^^void>
+requires (search_hint >1)
 struct consteval_mutable{
     using storage = consteval_map<storageR>;
 
+    static consteval meta::info get_refl(std::size_t index){
+        return meta::reflect_constant(std::pair<meta::info,meta::info>{key,meta::reflect_constant(index)}); 
+    }
+
     static consteval std::size_t get_last_index(){
-        std::size_t r = C;
-        while(storage::check(meta::reflect_constant(r))){
-            r*=C;
+        std::size_t r = search_hint;
+        while(storage::check(get_refl(r))){
+            r*=search_hint;
         }
-        std::size_t l =r/C-1;
+        std::size_t l =r/search_hint-1;
         while(l<r){
             std::size_t mid = (l+r)/2;
-            if(storage::check(meta::reflect_constant(mid))){
+            if(storage::check(get_refl(mid))){
                 l = mid+1;
             }else{
                 r = mid;
@@ -25,7 +29,7 @@ struct consteval_mutable{
 
     template<meta::info v, std::size_t index = get_last_index()+1>
     static consteval void put(){
-        storage::template put<meta::reflect_constant(index),v>();
+        storage::template put<get_refl(index),v>();
     }
 
     template<auto v,std::size_t index = get_last_index()+1>
@@ -42,7 +46,7 @@ struct consteval_mutable{
     template<std::size_t index = (get_last_index())>
     static consteval meta::info get(){
         if constexpr(index != -1){
-            return storage::template get<meta::reflect_constant(index)>();
+            return storage::template get<get_refl(index)>();
         }else{
             static_assert(false,"the mutable with storage reflection \""+info_to_string(storageR)+"\" is empty");
             return ^^consteval_mutable_error_its_empty;
@@ -92,9 +96,6 @@ struct consteval_mutable{
         }
     }
 
-    static consteval std::vector<meta::info> toVector(){
-
-    }
 };
 
 
