@@ -8,13 +8,13 @@ struct consteval_mutable{
 
     static consteval std::size_t get_last_index(){
         std::size_t r = C;
-        while(storage::check_nonTemplate(meta::reflect_constant(r))){
+        while(storage::check(meta::reflect_constant(r))){
             r*=C;
         }
         std::size_t l =r/C-1;
         while(l<r){
             std::size_t mid = (l+r)/2;
-            if(storage::check_nonTemplate(meta::reflect_constant(mid))){
+            if(storage::check(meta::reflect_constant(mid))){
                 l = mid+1;
             }else{
                 r = mid;
@@ -93,7 +93,7 @@ struct consteval_mutable{
     }
 
     static consteval std::vector<meta::info> toVector(){
-        
+
     }
 };
 

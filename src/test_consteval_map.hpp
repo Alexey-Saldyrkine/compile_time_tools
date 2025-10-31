@@ -45,9 +45,9 @@ namespace map_test1 {
 template <meta::info k>
 struct storage;
 using map = consteval_map<^^storage>;
-static_assert(!map::check<^^tag<int>>());
+static_assert(!map::check(^^tag<int>));
 consteval { map::put<^^tag<int>, ^^int>(); }
-static_assert(map::check<^^tag<int>>());
+static_assert(map::check(^^tag<int>));
 static_assert(map::get<^^tag<int>>() == ^^int);
 consteval { map::put<^^tag<char>, meta::reflect_constant(22)>(); }
 static_assert(map::get<^^tag<char>>() == meta::reflect_constant(22));

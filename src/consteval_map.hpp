@@ -19,19 +19,14 @@ struct consteval_map {
     struct value_tag {
         static constexpr auto value = v;
     };
-    template <meta::info k>
-    
-    static consteval bool check() {
-        return meta::is_complete_type(meta::substitute(storageR, {meta::reflect_constant(k)}));
-    }
 
-    static consteval bool check_nonTemplate(meta::info k) {
+    static consteval bool check(meta::info k) {
         return meta::is_complete_type(meta::substitute(storageR, {meta::reflect_constant(k)}));
     }
 
     template <meta::info k, meta::info v>
     static consteval void put() {
-        if constexpr (!check<k>()) {
+        if constexpr (!check(k)) {
             auto valueRefl = ^^value_tag<v>;
             //if(!meta::is_complete_type(meta::substitute(storageR, {meta::reflect_constant(k)})))
             meta::define_aggregate(meta::substitute(storageR, {meta::reflect_constant(k)}),
@@ -46,7 +41,7 @@ struct consteval_map {
     struct map_error_key_doesnt_exist {};
     template <meta::info k>
     static consteval meta::info get() {
-        if constexpr (!check<k>()) {
+        if constexpr (!check(k)) {
             static_assert(false, "no key: \"" + info_to_string(k) + "\"");
             return ^^map_error_key_doesnt_exist;
         } else {
@@ -74,12 +69,12 @@ struct consteval_map {
 
     template<typename k>
     static consteval bool checkT(){
-        return check<^^k>();
+        return check(^^k);
     }
 
     template<auto k>
     static consteval bool checkV(){
-        return check<meta::reflect_constant(k)>();
+        return check(meta::reflect_constant(k));
     }
 
     template<typename k>
@@ -149,5 +144,11 @@ struct consteval_map {
 
     template<auto k>
     static constexpr auto getV_v = get_value<meta::reflect_constant(k)>();
+
+};
+
+
+template<meta::info storageR>
+struct nth_map{
 
 };

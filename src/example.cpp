@@ -6,6 +6,9 @@
 #include "test_consteval_counter.hpp"
 #include "consteval_random.hpp"
 #include "test_consteval_random.hpp"
+#include "universal_enum.hpp"
+#include "test_universal_enum.hpp"
+#include "expr.hpp"
 
 int main() {
 }
