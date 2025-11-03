@@ -45,14 +45,14 @@ namespace map_test1 {
 template <meta::info k>
 struct storage;
 using map = consteval_map<^^storage>;
-static_assert(!map::check(^^tag<int>));
-consteval { map::put<^^tag<int>, ^^int>(); }
-static_assert(map::check(^^tag<int>));
-static_assert(map::get<^^tag<int>>() == ^^int);
-consteval { map::put<^^tag<char>, meta::reflect_constant(22)>(); }
-static_assert(map::get<^^tag<char>>() == meta::reflect_constant(22));
-consteval { map::put<meta::reflect_constant(2.7), ^^double>(); }
-static_assert(map::get<meta::reflect_constant(2.7)>() == ^^double);
+static_assert(!map::check_refl(^^tag<int>));
+consteval { map::put_refl<^^tag<int>, ^^int>(); }
+static_assert(map::check_refl(^^tag<int>));
+static_assert(map::get_refl<^^tag<int>>() == ^^int);
+consteval { map::put_refl<^^tag<char>, meta::reflect_constant(22)>(); }
+static_assert(map::get_refl<^^tag<char>>() == meta::reflect_constant(22));
+consteval { map::put_refl<meta::reflect_constant(2.7), ^^double>(); }
+static_assert(map::get_refl<meta::reflect_constant(2.7)>() == ^^double);
 }  // namespace map_test1
 
 
@@ -64,17 +64,20 @@ template <meta::info k>
 struct storage;
 using map = consteval_map<^^storage>;
 
-static_assert(!map::checkT<int>());
-constexpr bool a = map::checkT<int>();
+static_assert(!map::check<int>());
+constexpr bool a = map::check<int>();
 
-consteval { map::putTT<int, char>(); }
+consteval { map::put<int, char>(); }
 
-constexpr bool b = map::checkT<int>();
+static_assert(map::check_is_type<int>());
+static_assert(!map::check_is_value<int>());
+
+constexpr bool b = map::check<int>();
 static_assert(a == !b);
 static_assert(std::is_same_v<map::getT_t<int>, char>);
 
-consteval { map::putTT<tag<double>, tag<int>>(); }
-consteval { map::putTT<tag<int>, char>(); }
+consteval { map::put<tag<double>, tag<int>>(); }
+consteval { map::put<tag<int>, char>(); }
 
 static_assert(std::is_same_v<map::getT_t<tag<double>>, tag<int>>);
 static_assert(std::is_same_v<map::getT_t<map::getT_t<tag<double>>>, char>);
@@ -91,21 +94,32 @@ using map = consteval_map<^^storage>;
 
 constexpr int i = 124;
 consteval {
-    map::putTV<int, 123>();
-    map::putTV<char, i>();
-    map::putVT<2.7, double>();
-    map::putVT<str<"hello">, void>();
-    map::putVV<1, str<"abc">>();
+    map::put<int, 123>();
+    map::put<char, i>();
+    map::put<2.7, double>();
+    map::put<str<"hello">, void>();
+    map::put<1, str<"abc">>(); 
+    map::put<void,int>();
 }
+
+static_assert(map::check_is_value<int>());
+static_assert(map::check_is_type<2.7>());
+static_assert(map::check_is_value<1>());
+static_assert(map::check_is_type<void>());
 
 static_assert(map::getT_v<int> == 123);
 static_assert(map::getT_v<char> == 124);
 static_assert(std::is_same_v<map::getV_t<2.7>, double>);
 static_assert(std::is_same_v<map::getV_t<str<"hello">>, void>);
 
-consteval { map::putVV<2, str<"abc">>(); }
+consteval { 
+    map::put<2, str<"abc">>();
+    map::put<3, str<"acb">>();  
+}
 static_assert(map::getV_v<1> == str<"abc">);
 static_assert(map::getV_v<1> == map::getV_v<2>);
+static_assert(map::getV_v<1> != map::getV_v<3>);
+static_assert(map::getV_v<2> != map::getV_v<3>);
 
 }  // namespace map_test3
 
@@ -123,10 +137,10 @@ constexpr int func3() { return 3; }
 consteval int func4() { return 4; }
 
 consteval {
-    funcMap::putVT<1, func1>();
-    funcMap::putVV<2, func2{}>();
-    funcMap::putVV<3, func3>();
-    funcMap::putVV<4, ^^func4>();
+    funcMap::put<1, func1>();
+    funcMap::put<2, func2{}>();
+    funcMap::put<3, func3>();
+    funcMap::put<4, ^^func4>();
 }
 using Tfunc1 = funcMap::getV_t<1>;
 constexpr auto Tfunc2 = funcMap::getV_v<2>;

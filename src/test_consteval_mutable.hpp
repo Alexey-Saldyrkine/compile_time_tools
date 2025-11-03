@@ -6,49 +6,54 @@ namespace mutable_test1{
     using mut = consteval_mutable<^^storage>;
 
     static_assert(!mut::check());
-    static_assert(!mut::checkV());
-    static_assert(!mut::checkT());
+    static_assert(!mut::check_is_value());
+    static_assert(!mut::check_is_type());
     
     consteval{
-        mut::putV<123>();
+        mut::put<123>();
     }
 
     static_assert(mut::check());
-    static_assert(mut::checkV());
-    static_assert(!mut::checkT());
+    static_assert(mut::check_is_value());
+    static_assert(!mut::check_is_type());
     static_assert(mut::get_v<> == 123);
 
     consteval{
-        mut::putV<124>();
+        mut::put<124>();
     }
     static_assert(mut::get_v<> == 124);
 
     consteval{
-        mut::putV<125>();
+        mut::put<125>();
     }
     static_assert(mut::get_v<> == 125);
 
     consteval{
-        mut::putT<int>();
+        mut::put<125>();
     }
-    static_assert(!mut::checkV());
-    static_assert(mut::checkT());
+    static_assert(mut::get_v<> == 125);
+
+    consteval{
+        mut::put<int>();
+    }
+    static_assert(!mut::check_is_value());
+    static_assert(mut::check_is_type());
     static_assert(std::is_same_v<mut::get_t<>,int>);
 
     consteval{
-        mut::putV<125>();
+        mut::put<125>();
     }
     static_assert(mut::get_v<> == 125);
 
     consteval{
-        mut::putT<void>();
+        mut::put<void>();
     }
     static_assert(std::is_same_v<mut::get_t<>,void>);
 
     using func1 = decltype([](){return 1;});
 
     consteval{
-        mut::putT<func1>();
+        mut::put<func1>();
     }
 
     static_assert(mut::get_t<>{}() == 1);
@@ -60,25 +65,25 @@ namespace mutable_test2{
     using mut = consteval_mutable<^^storage>;
 
     consteval{
-        mut::putV<124>();
+        mut::put<124>();
     }
     static_assert(mut::get_v<> == 124);
 
     const int i = 125;
     consteval{
-        mut::putV<i>();
+        mut::put<i>();
     }
     static_assert(mut::get_v<> == i);
     static_assert(mut::get_v<> == 125);
 
     consteval{
-        mut::putT<double>();
+        mut::put<double>();
     }
     static_assert(std::is_same_v<mut::get_t<>,double>);
 
     using func1 = decltype([](){return 1;});
     consteval{
-        mut::putT<func1>();
+        mut::put<func1>();
     }
 
     static_assert(mut::get_t<>{}() == 1);

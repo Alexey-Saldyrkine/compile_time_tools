@@ -6,19 +6,19 @@ requires (search_hint >1)
 struct consteval_mutable{
     using storage = consteval_map<storageR>;
 
-    static consteval meta::info get_refl(std::size_t index){
+    static consteval meta::info get_sub_refl(std::size_t index){
         return meta::reflect_constant(std::pair<meta::info,meta::info>{key,meta::reflect_constant(index)}); 
     }
 
     static consteval std::size_t get_last_index(){
         std::size_t r = search_hint;
-        while(storage::check(get_refl(r))){
+        while(storage::check_refl(get_sub_refl(r))){
             r*=search_hint;
         }
         std::size_t l =r/search_hint-1;
         while(l<r){
             std::size_t mid = (l+r)/2;
-            if(storage::check(get_refl(mid))){
+            if(storage::check_refl(get_sub_refl(mid))){
                 l = mid+1;
             }else{
                 r = mid;
@@ -28,25 +28,25 @@ struct consteval_mutable{
     }
 
     template<meta::info v, std::size_t index = get_last_index()+1>
-    static consteval void put(){
-        storage::template put<get_refl(index),v>();
+    static consteval void put_refl(){
+        storage::template put_refl<get_sub_refl(index),v>();
     }
 
     template<auto v,std::size_t index = get_last_index()+1>
-    static consteval void putV(){
-        put<meta::reflect_constant(v),index>();
+    static consteval void put(){
+        put_refl<meta::reflect_constant(v),index>();
     }
 
     template<typename v,std::size_t index = get_last_index()+1>
-    static consteval void putT(){
-        put<^^v,index>();
+    static consteval void put(){
+        put_refl<^^v,index>();
     }
 
     struct consteval_mutable_error_its_empty;
     template<std::size_t index = (get_last_index())>
     static consteval meta::info get(){
         if constexpr(index != -1){
-            return storage::template get<get_refl(index)>();
+            return storage::template get_refl<get_sub_refl(index)>();
         }else{
             static_assert(false,"the mutable with storage reflection \""+info_to_string(storageR)+"\" is empty");
             return ^^consteval_mutable_error_its_empty;
@@ -56,7 +56,7 @@ struct consteval_mutable{
     template<std::size_t index>
     static consteval auto get_v_impl(){
         constexpr auto refl = get<index>();
-        if constexpr(meta::is_value(refl) || meta::is_object(refl)){
+        if constexpr(is_info_a_value(refl)){
             return [:refl:];
         }else{
             static_assert(false,"the reflection \""+info_to_string(refl)+"\" is not a value or object");
@@ -80,15 +80,15 @@ struct consteval_mutable{
         return get_last_index()!=-1;
     }
     template<std::size_t index = get_last_index()>
-    static consteval bool checkV(){
+    static consteval bool check_is_value(){
         if constexpr(check()){
-            return meta::is_value(get<index>()) || meta::is_object(get<index>());
+            return is_info_a_value(get<index>());
         }else{ 
             return false;
         }
     }
     template<std::size_t index = get_last_index()>
-    static consteval bool checkT(){
+    static consteval bool check_is_type(){
         if constexpr(check()){
             return meta::is_type(get<index>());
         }else{ 

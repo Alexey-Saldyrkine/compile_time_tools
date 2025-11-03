@@ -30,29 +30,29 @@ struct universal_enum {
     }
 
     template<universal_enum_fixed_string str>
-    consteval bool check_is_v(){
+    consteval bool check_is_value(){
         return map::template checkV_is_value<str>();
     }
 
     template<universal_enum_fixed_string str>
-    consteval bool check_is_t(){
+    consteval bool check_is_type(){
         return map::template checkV_is_type<str>();
     }
 
     template<universal_enum_fixed_string str>
     static consteval void put(){
-        map::template putVV<str,counter::get()>();
+        map::template put<str,counter::get()>();
         counter::increment();
     }
 
     template<universal_enum_fixed_string str, auto v>
-    static consteval void putV(){
-        map::template putVV<str,v>();
+    static consteval void put(){
+        map::template put<str,v>();
     }
 
     template<universal_enum_fixed_string str, typename T>
-    static consteval void putT(){
-        map::template putVT<str,T>();
+    static consteval void put(){
+        map::template put<str,T>();
     }
 
     template<universal_enum_fixed_string str>

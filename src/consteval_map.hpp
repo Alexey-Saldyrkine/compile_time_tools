@@ -7,6 +7,11 @@ consteval std::string info_to_string(meta::info r) {
     auto sv = meta::display_string_of(r);
     return std::string(sv.data(), sv.size());
 }
+
+consteval bool is_info_a_value(meta::info r){
+    return meta::is_value(r) || meta::is_object(r);
+}
+
 template <meta::info r>
 concept is_proper_sotrage_type =
     meta::is_class_template(r) &&meta::can_substitute(r,{meta::reflect_constant(^^void)})
@@ -20,19 +25,19 @@ struct consteval_map {
         static constexpr auto value = v;
     };
 
-    static consteval bool check(meta::info k) {
+    static consteval bool check_refl(meta::info k) {
         return meta::is_complete_type(meta::substitute(storageR, {meta::reflect_constant(k)}));
     }
 
     template <meta::info k, meta::info v>
-    static consteval void put() {
-        if constexpr (!check(k)) {
+    static consteval void put_refl() {
+        if constexpr (!check_refl(k)) {
             auto valueRefl = ^^value_tag<v>;
             //if(!meta::is_complete_type(meta::substitute(storageR, {meta::reflect_constant(k)})))
             meta::define_aggregate(meta::substitute(storageR, {meta::reflect_constant(k)}),
                                    {meta::data_member_spec(valueRefl, {.name = "value"})});
         } else {
-            constexpr auto value = get<k>();
+            constexpr auto value = get_refl<k>();
             static_assert(false, "key: \"" + info_to_string(k) +
                                      "\" all ready exists with value \"" + info_to_string(value) +
                                      "\", not \"" + info_to_string(v) + "\"");
@@ -40,8 +45,8 @@ struct consteval_map {
     }
     struct map_error_key_doesnt_exist {};
     template <meta::info k>
-    static consteval meta::info get() {
-        if constexpr (!check(k)) {
+    static consteval meta::info get_refl() {
+        if constexpr (!check_refl(k)) {
             static_assert(false, "no key: \"" + info_to_string(k) + "\"");
             return ^^map_error_key_doesnt_exist;
         } else {
@@ -52,8 +57,8 @@ struct consteval_map {
 
     template<meta::info k>
     static consteval auto get_value(){
-        constexpr meta::info refl = get<k>();
-        if constexpr(meta::is_value(refl) || meta::is_object(refl)){
+        constexpr meta::info refl = get_refl<k>();
+        if constexpr(is_info_a_value(refl)){
             return [:refl:];
         }else{
             static_assert(false,"the reflection of \""+info_to_string(refl)+"\" is not a value or object");
@@ -62,75 +67,85 @@ struct consteval_map {
     }
 
     template<meta::info k>
-    static consteval auto get_type() -> typename[:get<k>():]{
-        auto refl = get<k>();
+    static consteval auto get_type() -> typename[:get_refl<k>():]{
+        auto refl = get_refl<k>();
         static_assert(meta::is_type(refl),"reflection \""+info_to_string(refl)+"\" not a type");
     }
 
     template<typename k>
-    static consteval bool checkT(){
-        return check(^^k);
+    static consteval bool check(){
+        return check_refl(^^k);
     }
 
     template<auto k>
-    static consteval bool checkV(){
-        return check(meta::reflect_constant(k));
+    static consteval bool check(){
+        return check_refl(meta::reflect_constant(k));
     }
 
     template<typename k>
-    static consteval bool checkT_is_type(){
-        if constexpr(checkT<k>){
-            return meta::is_type(get<^^k>);
+    static consteval bool check_is_type(){
+        if constexpr(check<k>()){
+            return meta::is_type(get_refl<^^k>());
         }else{
             return false;
         }
     }
 
     template<typename k>
-    static consteval bool checkT_is_value(){
-        if constexpr(checkT<k>){
-            return meta::is_value(get<^^k>);
+    static consteval bool check_is_value(){
+        if constexpr(check<k>()){
+            return is_info_a_value(get_refl<^^k>());
         }else{
             return false;
         }
     }
 
     template<auto k>
-    static consteval bool checkV_is_type(){
-        if constexpr(checkV<k>){
-            return meta::is_type(get<meta::reflect_constant(k)>);
+    static consteval bool check_is_type(){
+        if constexpr(check<k>()){
+            return meta::is_type(get_refl<meta::reflect_constant(k)>());
         }else{
             return false;
         }
     }
 
     template<auto k>
-    static consteval bool checkV_is_value(){
-        if constexpr(checkV<k>){
-            return meta::is_value(get<meta::reflect_constant(k)>);
+    static consteval bool check_is_value(){
+        if constexpr(check<k>()){
+            return is_info_a_value(get_refl<meta::reflect_constant(k)>());
         }else{
             return false;
         }
     }
 
     template<typename k, typename v>
-    static consteval void putTT(){
-        put<^^k,^^v>();
+    static consteval void put(){
+        put_refl<^^k,^^v>();
     }
 
     template<typename k, auto v>
-    static consteval void putTV(){
-        put<^^k,meta::reflect_constant(v)>();
+    static consteval void put(){
+        put_refl<^^k,meta::reflect_constant(v)>();
     }
 
     template<auto k, typename v>
-    static consteval void putVT(){
-        put<meta::reflect_constant(k),^^v>();
+    static consteval void put(){
+        put_refl<meta::reflect_constant(k),^^v>();
     }
 
     template<auto k, auto v>
-    static consteval void putVV(){
-        put<meta::reflect_constant(k),meta::reflect_constant(v)>();
+    static consteval void put(){
+        put_refl<meta::reflect_constant(k),meta::reflect_constant(v)>();
+    }
+
+    template<typename k>
+    consteval meta::info get(){
+        return get_refl<^^k>();
+    }
+
+    template<auto k>
+    consteval meta::info get(){
+        return get_refl<meta::reflect_constant(k)>();
     }
 
     template<typename k>

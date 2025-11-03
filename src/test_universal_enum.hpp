@@ -8,8 +8,8 @@ namespace uni_enum_test1{
 
     consteval{
         uni_enum::put<"alpha">();
-        uni_enum::putV<"a",123>();
-        uni_enum::putT<"a-T",int>();
+        uni_enum::put<"a",123>();
+        uni_enum::put<"a-T",int>();
     }
     static_assert(std::is_same_v<uni_enum::get_t<"a-T">,int>);
     static_assert(uni_enum::get_v<"a"> == 123);
