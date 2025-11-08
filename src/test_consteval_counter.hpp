@@ -55,3 +55,33 @@ namespace counter_test2{
     }
     static_assert(counter::get()==19);
 }
+
+namespace counter_test3{
+
+template<auto>
+struct storage;
+
+using counter = consteval_counter<^^storage>;
+
+// all counters begin at 0
+static_assert(counter::get()==0);
+
+consteval{
+    counter::increment();// increment counter by 1, default
+}
+
+static_assert(counter::get()==1);
+
+consteval{
+    counter::increment(1); // increment by 1
+}
+
+static_assert(counter::get()==2);
+
+consteval{
+    counter::increment(5); // increment by 5;
+}
+
+static_assert(counter::get()==7);
+
+}

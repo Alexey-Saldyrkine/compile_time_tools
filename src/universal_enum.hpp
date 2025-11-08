@@ -25,18 +25,18 @@ struct universal_enum {
     using counter = consteval_counter<storageR>;
 
     template<universal_enum_fixed_string str>
-    consteval bool check(){
-        return map::template checkV<str>();
+    static consteval bool check(){
+        return map::template check<str>();
     }
 
     template<universal_enum_fixed_string str>
-    consteval bool check_is_value(){
-        return map::template checkV_is_value<str>();
+    static consteval bool check_is_value(){
+        return map::template check_is_value<str>();
     }
 
     template<universal_enum_fixed_string str>
-    consteval bool check_is_type(){
-        return map::template checkV_is_type<str>();
+    static consteval bool check_is_type(){
+        return map::template check_is_type<str>();
     }
 
     template<universal_enum_fixed_string str>
@@ -56,15 +56,9 @@ struct universal_enum {
     }
 
     template<universal_enum_fixed_string str>
-    static consteval auto get(){
-        return map::template getV_v<str>;
-    }
-
-    template<universal_enum_fixed_string str>
     using get_t = map::template getV_t<str>;
 
     template<universal_enum_fixed_string str>
     static constexpr auto get_v = map::template getV_v<str>;
 };
-
 

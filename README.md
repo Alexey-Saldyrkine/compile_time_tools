@@ -1,8 +1,49 @@
 # Compile Time Tools
 A set of compile time tools.
 
-Includes a key-value map, mutable compile time variable. 
+[godbolt Link](https://godbolt.org/z/Kbh57TEP6)
 
+Includes compile time variant of:
+- mutable variable
+- key-value map
+- universal enum
+- counter
+- random number generator
+
+
+### Consteval mutable example:
+```cpp
+template<auto>
+struct storage; //the incomplete type that is used as the storage medium for the mutable
+using mut = consteval_mutable<^^storage>; // the mutable type
+
+// put a constant value
+consteval{
+	mut::put<124>();
+}
+static_assert(mut::get_v<> == 124);
+
+// put a constant variable
+const int i = 125;
+consteval{
+	mut::put<i>();
+}
+static_assert(mut::get_v<> == i);
+static_assert(mut::get_v<> == 125);
+
+// put a type
+consteval{
+	mut::put<double>();
+}
+static_assert(std::is_same_v<mut::get_t<>,double>);
+
+// put a lambda type
+using func1 = decltype([](){return 1});
+consteval{
+	mut::put<func1>();
+}
+static_assert(mut::get_t<>{}() == 1);
+```
 
 ### Map example:
 ```cpp
@@ -17,11 +58,11 @@ constexpr int i = 124;
 
 consteval {
 	// add key-value pairs
-	map::putTV<int, 123>();
-	map::putTV<char, i>();
-	map::putVT<2.7, double>();
-	map::putVT<str<"hello">, void>();
-	map::putVV<1, str<"abc">>();
+	map::put<int, 123>();
+	map::put<char, i>();
+	map::put<2.7, double>();
+	map::put<str<"hello">, void>();
+	map::put<1, str<"abc">>();
 }
 // get values by keys
 static_assert(map::getT_v<int> == 123);
@@ -29,41 +70,119 @@ static_assert(map::getT_v<char> == 124);
 static_assert(std::is_same_v<map::getV_t<2.7>, double>);
 static_assert(std::is_same_v<map::getV_t<str<"hello">>, void>);
 
-consteval { map::putVV<2, str<"abc">>(); }
+consteval { map::put<2, str<"abc">>(); }
 static_assert(map::getV_v<1> == str<"abc">);
 static_assert(map::getV_v<1> == map::getV_v<2>);
 ```
 
-### Consteval mutable example:
+### universal enum example:
 ```cpp
 template<auto>
 struct storage; //the incomplete type that is used as the storage medium for the mutable
-using mut = consteval_mutable<^^storage>; // the mutable type
 
-// put a constant value
-consteval{
-	mut::putV<124>();
-}
-static_assert(mut::get_v<> == 124);
+using uni_enum = universal_enum<^^storage>; // the universal enum
 
-// put a constant variable
-const int i = 125;
-consteval{
-	mut::putV<i>();
-}
-static_assert(mut::get_v<> == i);
-static_assert(mut::get_v<> == 125);
+struct helper_type{
+    int g;
+    constexpr helper_type(int i):g(i){}
 
-// put a type
-consteval{
-	mut::putT<double>();
-}
-static_assert(std::is_same_v<mut::get_t<>,double>);
+    constexpr int f() const{
+        return g;
+    }
+};
 
-// put a lambda type
-using func1 = decltype([](){return 1});
+constexpr auto object = helper_type(33);
+
+using lambda_t = decltype([](){return 121;});
+
+// put elements into the enum
 consteval{
-	mut::putT<func1>();
+    uni_enum::put<"pie",3.14>();
+    uni_enum::put<"constexpr_object",object>();
+    uni_enum::put<"lambda_type",lambda_t>();
+    uni_enum::put<"type",long long int>();
 }
-static_assert(mut::get_t<>{}() == 1);
+
+//check wheter an enum element exists
+static_assert(uni_enum::check<"pie">());
+static_assert(!uni_enum::check<"e">());
+
+// get and check the enums
+static_assert(uni_enum::get_v<"pie"> == 3.14);
+static_assert(uni_enum::get_v<"constexpr_object">.f() == 33);
+static_assert(uni_enum::get_t<"lambda_type">{}() == 121);
+static_assert(std::is_same_v<long long int, uni_enum::get_t<"type">>);
+
+// add additional elements to the enum
+consteval{
+    uni_enum::put<"value",'g'>();
+}
+
+// test whether the enum is a value or type
+static_assert(uni_enum::check_is_value<"value">());
+static_assert(!uni_enum::check_is_type<"value">());
+
+static_assert(!uni_enum::check_is_value<"type">());
+static_assert(uni_enum::check_is_type<"type">());
 ```
+
+### counter example
+```cpp
+template<auto>
+struct storage;
+
+using counter = consteval_counter<^^storage>;
+
+// all counters begin at 0
+static_assert(counter::get()==0);
+
+consteval{
+    counter::increment();// increment counter by 1, default
+}
+
+static_assert(counter::get()==1);
+
+consteval{
+    counter::increment(1); // increment by 1
+}
+
+static_assert(counter::get()==2);
+
+consteval{
+    counter::increment(5); // increment by 5;
+}
+
+static_assert(counter::get()==7);
+```
+### random value generator example
+```cpp
+template<auto>
+struct storage;
+
+// rng with key set to 1984
+using rng = consteval_rng<^^storage,1984>;
+
+static_assert(rng::getInRange(1,6) == 3);
+
+consteval{
+    rng::next();
+}
+
+static_assert(rng::getInRange(1,6) == 2);
+consteval{
+    rng::next();
+}
+static_assert(rng::getInRange(1,6) == 4);
+
+consteval{
+       rng::next();
+}
+static_assert(rng::getInRange(1,6) == 3);
+
+consteval{
+    rng::next();
+}
+static_assert(rng::getInRange(1,6) == 5);
+
+```
+

@@ -1,10 +1,13 @@
 #pragma once
 #include "consteval_counter.hpp"
 
-
+consteval std::size_t processKey(std::size_t key){
+    return key | ( 1<<31);
+}
 // any counter based rng can be used
 // https://arxiv.org/pdf/2004.06278 is used as an example
 consteval std::size_t square_CBRNG(std::size_t ctr, std::size_t key){
+    key = processKey(key);
     std::size_t t,x,y,z;
     y = x = ctr*key;
     z = y+key;
@@ -24,14 +27,13 @@ concept proper_cbrng_lambda = requires(std::size_t a,std::size_t b){
     {T{}(a,b)};
 };
 
-consteval std::size_t processKey(std::size_t key){
-    return key | ( 1<<31);
-}
+
 
 template<meta::info storageR, std::size_t keyV, proper_cbrng_lambda F = decltype([](std::size_t ctr, std::size_t key){return square_CBRNG(ctr,key);}) >
 struct consteval_rng{
     using counter = consteval_counter<storageR>;
-    static constexpr std::size_t key = processKey(keyV);
+    static constexpr std::size_t key = keyV;
+    
     static consteval void next(){
         counter::increment();
     }

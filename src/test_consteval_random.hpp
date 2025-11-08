@@ -88,3 +88,35 @@ namespace rng_test3{
     }
     static_assert(rng::getInRange(4000,99999) == test(4000,99999,5));
 }
+
+namespace rng_test4{
+    
+template<auto>
+struct storage;
+
+// rng with key set to 1984
+using rng = consteval_rng<^^storage,1984>;
+
+static_assert(rng::getInRange(1,6) == 3);
+
+consteval{
+    rng::next();
+}
+
+static_assert(rng::getInRange(1,6) == 2);
+consteval{
+    rng::next();
+}
+static_assert(rng::getInRange(1,6) == 4);
+
+consteval{
+       rng::next();
+}
+static_assert(rng::getInRange(1,6) == 3);
+
+consteval{
+    rng::next();
+}
+static_assert(rng::getInRange(1,6) == 5);
+
+}
