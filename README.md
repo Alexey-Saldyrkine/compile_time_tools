@@ -1,7 +1,7 @@
 # Compile Time Tools
-A set of compile time tools.
+A set of compile time tools, uses c++26 reflection
 
-[godbolt Link](https://godbolt.org/z/Kbh57TEP6)
+[godbolt Link](https://godbolt.org/z/eerx86qf8)
 
 Includes compile time variant of:
 - mutable variable
@@ -10,6 +10,7 @@ Includes compile time variant of:
 - counter
 - random number generator
 
+See docs for details
 
 ### Consteval mutable example:
 ```cpp
@@ -159,7 +160,7 @@ static_assert(counter::get()==7);
 template<auto>
 struct storage;
 
-// rng with key set to 1984
+// rng with seed set to 1984
 using rng = consteval_rng<^^storage,1984>;
 
 static_assert(rng::getInRange(1,6) == 3);

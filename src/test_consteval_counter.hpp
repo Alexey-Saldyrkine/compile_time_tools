@@ -59,7 +59,7 @@ namespace counter_test2{
 namespace counter_test3{
 
 template<auto>
-struct storage;
+class storage;
 
 using counter = consteval_counter<^^storage>;
 
