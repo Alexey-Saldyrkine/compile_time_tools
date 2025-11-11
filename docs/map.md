@@ -1,12 +1,16 @@
 # consteval map
 
-Consteval map is compile time key-value map, that can be extended after its declaration.
+consteval_map is a non-constructible, compile time only type, that is interacted with using its static consteval member functions.
 
-Consteval map can use anything reflectable as its key or value, meaning types, templates and values of structural types and be used as keys and values.
+consteval_map is compile time key-value map, that can be extended after its declaration.
 
-Consteval map is a templated class that only has static consteval member functions, that allow to get, put and check key-value pairs.
+consteval_map can use anything reflectable as its key or value, meaning types, templates and values of structural types and be used as keys and values.
 
-Consteval map has a single non-type template parameter of type std::meta::info named storageR, meaning reflection of storage. 
+Note that consteval_map is non mutable, meaning once a key-value pair is inserted into the map it cannot be deleted or changed. For a mutable map see consteval_mutable_map.
+
+consteval_map is a templated class that only has static consteval member functions, that allow to get, put and check key-value pairs.
+
+consteval_map has a single non-type template parameter of type std::meta::info named storageR, meaning reflection of storage. 
 
 storageR needs to be a reflection of an incomplete templated class with a single non-type template parameter of type std::meta::info or auto.
 
@@ -24,6 +28,26 @@ using mapA = consteval_map<reflA>;
 using mapB = consteval_map<^^storageB>;
 
 ```
+
+Note: if two different consteval_maps types use the same storage type, then the two different types act as if they are the same type.
+
+Example:
+```cpp
+tempalte<auto>
+struct storage;
+
+using mapA = consteval_map<^^storage>;
+using mapB = consteval_map<^^storage>;
+
+consteval{
+	mapA::put<1,33>(); // put into mapA
+	mapB::put<2,34>(); // put into mapB
+}
+
+// as mapA and mapB use the same storage type, then they both have the two inserted pairs
+static_assert(mapA::getV_v<1> == mapB::getV_v<1>);
+static_assert(mapA::getV_v<2> == mapB::getV_v<2>);
+``
 
 ### how it works
 
@@ -53,6 +77,8 @@ meta::info valueRefl = decltype(storage<^^key>::value)::value
 ``` 
 # functions
 Consteval map has three main types of functions: out, get and check. They are all static consteval members of consteval_map.
+
+Note: most functions, except _refl functions, only work for types and values, meaning templates don't. Instead you can get a reflection of a template, and then use the _refl functions with it.
 
 ## check
 check functions are uses to check, whether a key exists and whether the value of a key is a type or a value.
