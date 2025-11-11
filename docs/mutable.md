@@ -4,8 +4,6 @@ consteval_mutable is a non-constructible, compile time only type, that is intera
 
 consteval_mutable is built on top of consteval_map.
 
-consteval_mutable can store any reflectable value or type.
-
 consteval_mutable is a type that can store a value, get the stored value, swap the stored value for a new one, while referring to the same type.
 
 consteval_mutable has three template parameters, storageR (see consteval_map), search_hint and key.         
@@ -14,9 +12,9 @@ template<meta::info storageR, std::size_t search_hint = 100, meta::info key = ^^
 struct consteval_mutable;
 ```
 
-storageR is the incomplete type that will be used to store information about the mutable
+storageR is the incomplete type that will be used to store information about the mutable.
 
-search_hint is used when searching for the latest value of the mutable
+search_hint is used when searching for the latest value of the mutable.
 
 key is a reflection used to uniquely identify a consteval_mutable within the storage type.
 
