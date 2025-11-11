@@ -77,7 +77,7 @@ static_assert(map::getV_v<1> == str<"abc">);
 static_assert(map::getV_v<1> == map::getV_v<2>);
 ```
 
-### mutable consteval map
+### Mutable consteval map example:
 ```cpp
 template<auto>
 struct storage; // storage type
@@ -171,7 +171,7 @@ static_assert(!uni_enum::check_is_value<"type">());
 static_assert(uni_enum::check_is_type<"type">());
 ```
 
-### counter example
+### counter example:
 ```cpp
 template<auto>
 struct storage;
@@ -199,7 +199,7 @@ consteval{
 
 static_assert(counter::get()==7);
 ```
-### random value generator example
+### random value generator example:
 ```cpp
 template<auto>
 struct storage;
