@@ -120,7 +120,7 @@ static_assert(mut_map::getT_v<long> == 4.321);
 static_assert(mut_map::get_mutable_typeV_t<1>::getV<0> == 2);
 ```
 
-### universal enum example:
+### Universal enum example:
 ```cpp
 template<auto>
 struct storage; //the incomplete type that is used as the storage medium for the mutable
@@ -171,7 +171,7 @@ static_assert(!uni_enum::check_is_value<"type">());
 static_assert(uni_enum::check_is_type<"type">());
 ```
 
-### counter example:
+### Counter example:
 ```cpp
 template<auto>
 struct storage;
@@ -199,7 +199,7 @@ consteval{
 
 static_assert(counter::get()==7);
 ```
-### random value generator example:
+### Random value generator example:
 ```cpp
 template<auto>
 struct storage;
