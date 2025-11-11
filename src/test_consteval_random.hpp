@@ -12,6 +12,10 @@ namespace rng_test1{
         return square_CBRNG(ctr,rng::key);
     }
     
+    static_assert(rng::get() == test(0));
+    consteval{
+        rng::next();
+    }
     static_assert(rng::get() == test(1));
     consteval{
         rng::next();
@@ -25,10 +29,6 @@ namespace rng_test1{
         rng::next();
     }
     static_assert(rng::get() == test(4));
-    consteval{
-        rng::next();
-    }
-    static_assert(rng::get() == test(5));
 }
 
 namespace rng_test2{
@@ -41,7 +41,11 @@ namespace rng_test2{
         return square_CBRNG(ctr,rng::key);
     }
     
-     static_assert(rng::get() == test(1));
+     static_assert(rng::get() == test(0));
+    consteval{
+        rng::next();
+    }
+    static_assert(rng::get() == test(1));
     consteval{
         rng::next();
     }
@@ -54,10 +58,6 @@ namespace rng_test2{
         rng::next();
     }
     static_assert(rng::get() == test(4));
-    consteval{
-        rng::next();
-    }
-    static_assert(rng::get() == test(5));
 }
 
 namespace rng_test3{
@@ -70,23 +70,23 @@ namespace rng_test3{
         return (square_CBRNG(ctr,rng::key) %(max-min)) + min;
     }
     
-     static_assert(rng::getInRange(1,6) == test(1,6,1));
+     static_assert(rng::getInRange(1,6) == test(1,6,0));
     consteval{
         rng::next();
     }
-    static_assert(rng::getInRange(1,10) == test(1,10,2));
+    static_assert(rng::getInRange(1,10) == test(1,10,1));
     consteval{
         rng::next();
     }
-    static_assert(rng::getInRange(1,100) == test(1,100,3));
+    static_assert(rng::getInRange(1,100) == test(1,100,2));
     consteval{
         rng::next();
     }
-    static_assert(rng::getInRange(20,40) == test(20,40,4));
+    static_assert(rng::getInRange(20,40) == test(20,40,3));
     consteval{
         rng::next();
     }
-    static_assert(rng::getInRange(4000,99999) == test(4000,99999,5));
+    static_assert(rng::getInRange(4000,99999) == test(4000,99999,4));
 }
 
 namespace rng_test4{
@@ -97,26 +97,26 @@ struct storage;
 // rng with key set to 1984
 using rng = consteval_rng<^^storage,1984>;
 
+static_assert(rng::getInRange(1,6) == 1);
+
+consteval{
+    rng::next();
+}
+
 static_assert(rng::getInRange(1,6) == 3);
-
 consteval{
     rng::next();
 }
-
 static_assert(rng::getInRange(1,6) == 2);
-consteval{
-    rng::next();
-}
-static_assert(rng::getInRange(1,6) == 4);
 
 consteval{
        rng::next();
 }
-static_assert(rng::getInRange(1,6) == 3);
+static_assert(rng::getInRange(1,6) == 4);
 
 consteval{
     rng::next();
 }
-static_assert(rng::getInRange(1,6) == 5);
+static_assert(rng::getInRange(1,6) == 3);
 
 }

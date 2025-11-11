@@ -4,6 +4,9 @@
 
 template<meta::info storageR, std::size_t mutable_hint = 100>
 struct consteval_mutable_map{
+    private:
+        consteval_mutable_map()=delete;
+    public:
 
     template<auto key>
     using get_mutable_typeV_t = consteval_mutable<storageR,mutable_hint,meta::reflect_constant(key)>;
@@ -11,7 +14,7 @@ struct consteval_mutable_map{
     template<typename key>
     using get_mutable_typeT_t = consteval_mutable<storageR,mutable_hint,^^key>;
 
-
+    
     template<auto key>
     static consteval bool check(){
         return get_mutable_typeV_t<key>::check();

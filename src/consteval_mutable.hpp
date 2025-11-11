@@ -4,12 +4,14 @@
 template<meta::info storageR, std::size_t search_hint = 100, meta::info key = ^^void>
 requires (search_hint >1)
 struct consteval_mutable{
+    private:
+    consteval_mutable() =delete;
     using storage = consteval_map<storageR>;
 
     static consteval meta::info get_sub_refl(std::size_t index){
-        return meta::reflect_constant(std::pair<meta::info,meta::info>{key,meta::reflect_constant(index)}); 
+        return meta::reflect_constant(std::pair<meta::info,std::size_t>{key,index}); 
     }
-
+    public:
     static consteval std::size_t get_last_index(){
         std::size_t r = search_hint;
         while(storage::check_refl(get_sub_refl(r))){
@@ -43,8 +45,8 @@ struct consteval_mutable{
     }
 
     struct consteval_mutable_error_its_empty;
-    template<std::size_t index = (get_last_index())>
-    static consteval meta::info get(){
+    template<std::size_t index = get_last_index()>
+    static consteval meta::info get_refl(){
         if constexpr(index != -1){
             return storage::template get_refl<get_sub_refl(index)>();
         }else{
@@ -55,7 +57,7 @@ struct consteval_mutable{
     private:
     template<std::size_t index>
     static consteval auto get_v_impl(){
-        constexpr auto refl = get<index>();
+        constexpr auto refl = get_refl<index>();
         if constexpr(is_info_a_value(refl)){
             return [:refl:];
         }else{
@@ -65,8 +67,8 @@ struct consteval_mutable{
     }
 
     template<std::size_t index>
-    static consteval auto get_type_impl()->typename[:get<index>():]{
-        auto refl = get<index>();
+    static consteval auto get_type_impl()->typename[:get_refl<index>():]{
+        auto refl = get_refl<index>();
         static_assert(meta::is_type(refl),"the reflection \""+info_to_string(refl)+"\" is not a type");
     }
     public:
@@ -77,12 +79,12 @@ struct consteval_mutable{
     using get_t = decltype(get_type_impl<index>());
 
     static consteval bool check(){
-        return get_last_index()!=-1;
+        return get_last_index()!=static_cast<std::size_t>(-1);
     }
     template<std::size_t index = get_last_index()>
     static consteval bool check_is_value(){
         if constexpr(check()){
-            return is_info_a_value(get<index>());
+            return is_info_a_value(get_refl<index>());
         }else{ 
             return false;
         }
@@ -90,7 +92,7 @@ struct consteval_mutable{
     template<std::size_t index = get_last_index()>
     static consteval bool check_is_type(){
         if constexpr(check()){
-            return meta::is_type(get<index>());
+            return meta::is_type(get_refl<index>());
         }else{ 
             return false;
         }

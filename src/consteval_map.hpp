@@ -20,11 +20,14 @@ concept is_proper_sotrage_type =
 template <meta::info storageR>
 requires is_proper_sotrage_type<storageR>
 struct consteval_map {
+    private:
+        consteval_map() = delete;
+    
     template <auto v>
     struct value_tag {
         static constexpr auto value = v;
     };
-
+    public:
     static consteval bool check_refl(meta::info k) {
         return meta::is_complete_type(meta::substitute(storageR, {meta::reflect_constant(k)}));
     }
@@ -54,7 +57,7 @@ struct consteval_map {
             return decltype(strgT::value)::value;
         }
     }
-
+    private:
     template<meta::info k>
     static consteval auto get_value(){
         constexpr meta::info refl = get_refl<k>();
@@ -71,7 +74,7 @@ struct consteval_map {
         auto refl = get_refl<k>();
         static_assert(meta::is_type(refl),"reflection \""+info_to_string(refl)+"\" not a type");
     }
-
+    public:
     template<typename k>
     static consteval bool check(){
         return check_refl(^^k);
@@ -159,11 +162,5 @@ struct consteval_map {
 
     template<auto k>
     static constexpr auto getV_v = get_value<meta::reflect_constant(k)>();
-
-};
-
-
-template<meta::info storageR>
-struct nth_map{
 
 };

@@ -5,11 +5,13 @@ namespace meta = std::meta;
 
 template<meta::info storageR, std::size_t hint = 100>
 struct consteval_counter{
+
+    private:
     static consteval meta::info substitute(std::size_t index){
         return meta::substitute(storageR, { std::meta::reflect_constant(index) });
     }
-
-
+    consteval_counter() = delete;
+    public:
 
     static consteval std::size_t get(){
         std::size_t r = hint;
@@ -28,7 +30,8 @@ struct consteval_counter{
         return l;
     }
 
-    static consteval void increment(std::size_t n = 1,std::size_t offset = get()){
+    static consteval void increment(std::size_t n = 1){
+        std::size_t offset = get();
             for(int i=0;i<n;i++){
                 meta::define_aggregate(substitute(offset+i),{});
             }

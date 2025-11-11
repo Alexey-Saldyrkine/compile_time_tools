@@ -19,11 +19,11 @@ template <std::size_t N>
 
 template <meta::info storageR>
 struct universal_enum {
-    
-
+    private:
+    universal_enum() = delete;
     using map = consteval_map<storageR>;
     using counter = consteval_counter<storageR>;
-
+    public:
     template<universal_enum_fixed_string str>
     static consteval bool check(){
         return map::template check<str>();
