@@ -1,7 +1,7 @@
 # Compile Time Tools
 A set of compile time tools, uses c++26 reflection
 
-[godbolt Link](https://godbolt.org/z/M1vxab1cs)
+[godbolt Link](https://godbolt.org/z/zz9348xT9)
 
 Includes compile time variant of:
 - mutable variable
