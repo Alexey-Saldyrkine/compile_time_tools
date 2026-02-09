@@ -11,6 +11,7 @@ Includes compile time variant of:
 - counter
 - random number generator
 
+For a detailed explanation of how the map and mutable variable see [here](https://github.com/Alexey-Saldyrkine/CT-map-and-mutable-variable-example-code)
 See docs for details, primarily map
 
 ### Consteval mutable example:
